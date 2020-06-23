@@ -1,0 +1,55 @@
+.book {
+   padding: 15px;
+
+   border-bottom: 1px solid #999;
+
+   &__author {
+      font-weight: normal;
+
+      margin: 0;
+   }
+
+   &__title-and-button {
+      display: flex;
+
+      justify-content: space-between;
+   }
+
+   &__title {
+      margin: 10px 0;
+   }
+
+   &__move-button {
+      cursor: pointer;
+      text-align: right;
+
+      border: none;
+      outline: none;
+      background: none;
+   }
+
+   &__move-button-text {
+      font-weight: bold;
+
+      text-decoration: underline;
+   }
+
+   &__description {
+      margin: 20px 0;
+   }
+
+   &__tag {
+      margin-right: 10px;
+      padding: 3px 7px;
+
+      cursor: pointer;
+
+      background-color: #ddd;
+   }
+}
+
+
+.books-placeholder {
+   text-align: center;
+   margin: 100px 0;
+}

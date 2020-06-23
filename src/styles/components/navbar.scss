@@ -1,12 +1,29 @@
 .navbar {
-   &__item {
-      display: inline-block;
+   display: flex;
 
-      margin: 10px;
-      cursor: default;
+   justify-content: space-evenly;
+
+   &__item {
+      padding: 10px;
+
+      cursor: pointer;
+      text-align: center;
+
+      border-right: 1px solid #999;
+      border-bottom: 1px solid #999;
+
+      flex-grow: 100;
+
+      &:last-child {
+         border-right: none;
+      }
 
       &_active {
          font-weight: bold;
+
+         pointer-events: none;
+
+         border-bottom: none;
       }
    }
 }

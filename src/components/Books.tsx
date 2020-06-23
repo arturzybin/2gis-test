@@ -1,11 +1,12 @@
 import React from 'react'
 import { IBook, ITab } from '../types'
+import { Book } from './Book'
 
 
 interface IProps {
    tab: ITab,
    books: IBook[],
-   tags: string[],
+   tags: Set<string>,
    addTag: (tag: string) => void
    moveBook: (index: number) => void
    booksInProgressIds: Set<number>,
@@ -31,7 +32,7 @@ export class Books extends React.Component<IProps, IState> {
          const books = this.booksRef.current as unknown as HTMLElement
 
          if (books) {
-            const toBooksBottom = books.getBoundingClientRect().bottom - document.documentElement.clientHeight
+            const toBooksBottom = books.getBoundingClientRect().bottom - window.innerHeight
             if (toBooksBottom < 200 && this.filteredBooksCount > this.state.countToDisplay) {
                this.setState({ countToDisplay: this.state.countToDisplay + 50 })
             }
@@ -43,80 +44,39 @@ export class Books extends React.Component<IProps, IState> {
       window.onscroll = null
    }
 
-   render() {
-      const { tab, books, tags, addTag, moveBook, booksInProgressIds, booksDoneIds } = this.props
 
-      const filteredBooks = filterBooks(books, tags, tab, booksInProgressIds, booksDoneIds)
+   filterBooks = (): IBook[] => {
+      const { tab, books, tags, booksInProgressIds, booksDoneIds } = this.props
+      return books.filter((book, index) => (
+         (
+            (tab === 'toread' && !book.moved)
+            || (tab === 'inprogress' && booksInProgressIds.has(index))
+            || (tab === 'done' && booksDoneIds.has(index))
+         )
+         &&
+         (!tags.size || Array.from(tags).every((tag) => book.tags.includes(tag)))
+      ))
+   }
+
+
+   render() {
+      const { tab, addTag, moveBook, books } = this.props
+
+      const filteredBooks = this.filterBooks()
       this.filteredBooksCount = filteredBooks.length
 
       const booksJSX = filteredBooks
          .slice(0, this.state.countToDisplay)
-         .map((book) => (
-            <div className="book" key={book.id}>
-               <h3 className="book__author">{book.author}</h3>
-               <h2 className="book__title">{book.title}</h2>
-               <p className="book__description">{book.description}</p>
-               {createMoveBookButton(tab, () => moveBook(book.index))}
+         .map((book) => <Book tab={tab} book={book} moveBook={moveBook} addTag={addTag} key={book.id} />)
 
-               <div className="book__tags">
-                  {book.tags.map((tag, tagIndex) => (
-                     <span
-                        className="book__tag"
-                        key={tagIndex}
-                        onClick={() => addTag(tag)}
-                     >
-                        {tag}
-                     </span>
-                  ))}
-               </div>
-            </div>
-         ))
 
+      if (!booksJSX.length) {
+         return <div className="books-placeholder">{books.length ? 'List is empty' : 'Loading...'}</div>
+      }
       return (
-         <div className="books" ref={this.booksRef}>
-            {booksJSX.length ? booksJSX : <div className="list-empty">List is empty</div>}
+         <div ref={this.booksRef}>
+            {booksJSX}
          </div>
       )
    }
-}
-
-
-function filterBooks(books: IBook[], tags: string[], tab: ITab, progressIds: Set<number>, doneIds: Set<number>): IBook[] {
-   return books.filter((book, index) => (
-      (
-         (tab === 'toread' && !book.moved)
-         || (tab === 'inprogress' && progressIds.has(index))
-         || (tab === 'done' && doneIds.has(index))
-      )
-      &&
-      (!tags.length || tags.every((tag) => book.tags.includes(tag)))
-   ))
-}
-
-
-function createMoveBookButton(tab: ITab, callback: () => void): JSX.Element {
-   if (tab === 'toread') {
-      return (
-         <button
-            className="book__move-button"
-            onClick={callback}
-         >start reading →</button>
-      )
-   }
-
-   if (tab === 'inprogress') {
-      return (
-         <button
-            className="book__move-button"
-            onClick={callback}
-         >finish reading →</button>
-      )
-   }
-
-   return (
-      <button
-         className="book__move-button"
-         onClick={callback}
-      >return in "to read" ↵</button>
-   )
 }

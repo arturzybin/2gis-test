@@ -5,7 +5,7 @@ export interface IBook {
    title: string
    description: string
    tags: string[]
-   moved?: boolean
+   moved?: boolean // true equals book in progress or done
 }
 
 export type ITab = 'toread' | 'done' | 'inprogress'

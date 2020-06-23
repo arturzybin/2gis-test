@@ -1,6 +1,25 @@
 .filter {
+   padding: 30px 25px;
+
+   border-bottom: 1px solid #999;
+
    &__tag {
-      cursor: default;
       margin-right: 10px;
+      padding: 3px 7px;
+
+      cursor: pointer;
+
+      background-color: #ddd;
+   }
+
+   &__clear {
+      padding: 0;
+
+      cursor: pointer;
+      text-decoration: underline;
+
+      border: none;
+      outline: none;
+      background: none;
    }
 }

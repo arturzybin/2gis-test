@@ -1,17 +1,17 @@
 import React from 'react'
 
 interface IProps {
-   tags: string[]
-   removeTag: (index: number) => void
+   tags: Set<string>
+   removeTag: (tag: string) => void
    clearTags: () => void
 }
 
 export const Filter: React.FC<IProps> = ({ tags, removeTag, clearTags }) => {
-   if (!tags.length) return null
+   if (!tags.size) return null
 
-   const tagsJSX = tags.map((tag, index) => (
-      <span className="filter__tag" onClick={() => removeTag(index)} key={index}>
-         {tag}
+   const tagsJSX = Array.from(tags).map((tag) => (
+      <span className="filter__tag" onClick={() => removeTag(tag)} key={tag}>
+         #{tag}
       </span>)
    )
 
@@ -19,7 +19,7 @@ export const Filter: React.FC<IProps> = ({ tags, removeTag, clearTags }) => {
       <div className="filter">
          <span>Filtered by tags: </span>
          {tagsJSX}
-         <button className="filter__clear" onClick={clearTags}>(clear)</button>
+         (<button className="filter__clear" onClick={clearTags}>clear</button>)
       </div>
    )
 }

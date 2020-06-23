@@ -1,8 +1,20 @@
 * {
    font-family: Roboto;
+
    box-sizing: border-box;
+}
+
+.app {
+   overflow: hidden;
+
+   min-width: 480px;
+   max-width: 1280px;
+   margin: auto;
+   margin-top: 5vh;
+
+   border: 1px solid #999;
 }
 
 @import './components/navbar';
 @import './components/filter';
-@import './components/books';
+@import './components/book';

@@ -14,7 +14,7 @@ interface IState {
    booksInProgressIds: Set<number>,
    booksDoneIds: Set<number>,
    currentTab: ITab,
-   tags: string[]
+   tags: Set<string>
 }
 
 class App extends React.Component<{}, IState> {
@@ -23,7 +23,7 @@ class App extends React.Component<{}, IState> {
       booksInProgressIds: new Set(),
       booksDoneIds: new Set(),
       currentTab: 'toread' as ITab,
-      tags: []
+      tags: new Set()
    }
 
 
@@ -34,13 +34,14 @@ class App extends React.Component<{}, IState> {
          .then(data => {
             data.items.forEach((book: IBook, index: number) => book.index = index)
 
+            // restoring moved(in progress or done) books ids from localstorage
             const allBooks: IBook[] = data.items
             if (!localStorage.getItem('movedBooks')) {
                localStorage.setItem('movedBooks', '[]')
             }
             const movedBookIds: string[] = JSON.parse(localStorage.getItem('movedBooks') as string)
-            for (let id of movedBookIds) {
-               const book = allBooks.find(book => book.id === id)
+            for (let movedId of movedBookIds) {
+               const book = allBooks.find(book => book.id === movedId)
                if (book) book.moved = true
             }
 
@@ -61,12 +62,12 @@ class App extends React.Component<{}, IState> {
       const tags = urlParams.get('tags')
       if (tags) {
          newUrl.searchParams.set('tags', tags)
-         this.setState({ tags: tags.split(',') })
+         this.setState({ tags: new Set(tags.split(',')) })
       }
 
       window.history.pushState('', '', newUrl.toString())
 
-      // restoring books from localstorage
+      // restoring in progress and done books from localstorage
       if (!localStorage.getItem('booksInProgress')) {
          localStorage.setItem('booksInProgress', '[]')
       }
@@ -93,28 +94,27 @@ class App extends React.Component<{}, IState> {
 
 
    addTag = (tag: string) => {
-      let tags = [...this.state.tags]
-      if (tags.includes(tag)) return
-      tags.push(tag)
+      let tags = this.state.tags
+      tags.add(tag)
       this.setState({ tags })
 
       const newUrl = new URL(window.location.href)
-      newUrl.searchParams.set('tags', tags.join(','))
+      newUrl.searchParams.set('tags', Array.from(tags).join(','))
       window.history.pushState('', '', newUrl.toString())
    }
 
-   removeTag = (index: number) => {
-      let tags = [...this.state.tags]
-      tags = [...tags.slice(0, index), ...tags.slice(index + 1)]
+   removeTag = (tag: string) => {
+      let tags = this.state.tags
+      tags.delete(tag)
       this.setState({ tags })
 
       const newUrl = new URL(window.location.href)
-      newUrl.searchParams.set('tags', tags.join(','))
+      newUrl.searchParams.set('tags', Array.from(tags).join(','))
       window.history.pushState('', '', newUrl.toString())
    }
 
    clearTags = () => {
-      this.setState({ tags: [] })
+      this.setState({ tags: new Set() })
 
       const newUrl = new URL(window.location.href)
       newUrl.searchParams.delete('tags')
@@ -123,14 +123,13 @@ class App extends React.Component<{}, IState> {
 
 
    startBook = (index: number) => {
-      const allBooks = [...this.state.allBooks]
-      const book = { ...allBooks[index], moved: true }
-      allBooks[index] = book
+      const allBooks = this.state.allBooks
+      allBooks[index].moved = true
       const movedBooks = allBooks.filter(book => book.moved)
       const movedBooksIds = movedBooks.map(book => book.id)
       localStorage.setItem('movedBooks', JSON.stringify(movedBooksIds))
 
-      const booksInProgressIds = new Set(this.state.booksInProgressIds)
+      const booksInProgressIds = this.state.booksInProgressIds
       booksInProgressIds.add(index)
       localStorage.setItem('booksInProgress', JSON.stringify(Array.from(booksInProgressIds)) )
 
@@ -138,11 +137,11 @@ class App extends React.Component<{}, IState> {
    }
 
    finishBook = (index: number) => {
-      const booksInProgressIds = new Set(this.state.booksInProgressIds)
+      const booksInProgressIds = this.state.booksInProgressIds
       booksInProgressIds.delete(index)
       localStorage.setItem('booksInProgress', JSON.stringify(Array.from(booksInProgressIds)) )
 
-      const booksDoneIds = new Set(this.state.booksDoneIds)
+      const booksDoneIds = this.state.booksDoneIds
       booksDoneIds.add(index)
       localStorage.setItem('booksDone', JSON.stringify(Array.from(booksDoneIds)) )
 
@@ -150,13 +149,12 @@ class App extends React.Component<{}, IState> {
    }
 
    resetBook = (index: number) => {
-      const booksDoneIds = new Set(this.state.booksDoneIds)
+      const booksDoneIds = this.state.booksDoneIds
       booksDoneIds.delete(index)
       localStorage.setItem('booksDone', JSON.stringify(Array.from(booksDoneIds)) )
 
-      const allBooks = [...this.state.allBooks]
-      const book = { ...allBooks[index], moved: false }
-      allBooks[index] = book
+      const allBooks = this.state.allBooks
+      allBooks[index].moved = false
       const movedBooks = allBooks.filter(book => book.moved)
       const movedBooksIds = movedBooks.map(book => book.id)
       localStorage.setItem('movedBooks', JSON.stringify(movedBooksIds))
