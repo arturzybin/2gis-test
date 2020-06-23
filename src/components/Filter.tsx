@@ -7,8 +7,10 @@ interface IProps {
 }
 
 export const Filter: React.FC<IProps> = ({ tags, removeTag, clearTags }) => {
+   if (!tags.length) return null
+
    const tagsJSX = tags.map((tag, index) => (
-      <span className="filter__tag" onClick={() => removeTag(index)}>
+      <span className="filter__tag" onClick={() => removeTag(index)} key={index}>
          {tag}
       </span>)
    )
