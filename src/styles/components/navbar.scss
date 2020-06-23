@@ -1,0 +1,12 @@
+.navbar {
+   &__item {
+      display: inline-block;
+
+      margin: 10px;
+      cursor: default;
+
+      &_active {
+         font-weight: bold;
+      }
+   }
+}
