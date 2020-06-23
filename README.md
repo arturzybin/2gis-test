@@ -1,4 +1,4 @@
-# Roowix test by Artur Zybin
+# 2Gis test by Artur Zybin
 
 Available at https://arturzybin.github.io/2gis-test
 
