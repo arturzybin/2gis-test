@@ -5,7 +5,7 @@ import { IBook, ITab } from '../types'
 interface IProps {
    tab: ITab
    book: IBook
-   moveBook: (index: number) => void
+   moveBook: (index: number, id: string) => void
    addTag: (tag: string) => void
 }
 
@@ -14,7 +14,7 @@ export const Book: React.FC<IProps> = ({ tab, book, moveBook, addTag }) => (
       <h3 className="book__author">{book.author}</h3>
       <div className="book__title-and-button">
          <h2 className="book__title">{book.title}</h2>
-         {createMoveBookButton(tab, () => moveBook(book.index))}
+         {createMoveBookButton(tab, () => moveBook(book.index, book.id))}
       </div>
       <p className="book__description">{book.description}</p>
 

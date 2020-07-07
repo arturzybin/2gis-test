@@ -8,9 +8,9 @@ interface IProps {
    books: IBook[],
    tags: Set<string>,
    addTag: (tag: string) => void
-   moveBook: (index: number) => void
-   booksInProgressIds: Set<number>,
-   booksDoneIds: Set<number>,
+   moveBook: (index: number, id: string) => void
+   booksInProgressIds: Set<string>,
+   booksDoneIds: Set<string>,
 }
 
 interface IState {
@@ -47,11 +47,11 @@ export class Books extends React.Component<IProps, IState> {
 
    filterBooks = (): IBook[] => {
       const { tab, books, tags, booksInProgressIds, booksDoneIds } = this.props
-      return books.filter((book, index) => (
+      return books.filter((book) => (
          (
             (tab === 'toread' && !book.moved)
-            || (tab === 'inprogress' && booksInProgressIds.has(index))
-            || (tab === 'done' && booksDoneIds.has(index))
+            || (tab === 'inprogress' && booksInProgressIds.has(book.id))
+            || (tab === 'done' && booksDoneIds.has(book.id))
          )
          &&
          (!tags.size || Array.from(tags).every((tag) => book.tags.includes(tag)))
